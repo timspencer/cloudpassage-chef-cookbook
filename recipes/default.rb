@@ -19,14 +19,35 @@ else
     proxy_string_lin = ""
     proxy_string_win = ""
 end
+
+# Set some "tags" in the node
+case node.platform
+when 'oracle'
+    if node.platform_version =~ /6/
+        node.default.cloudpassage.tag = 'oel6'
+    else
+        node.default.cloudpassage.tag = 'oel5'
+    end
+when 'ubuntu'
+    node.default.cloudpassage.tag = 'ubuntu14'
+when 'windows'
+    if node.platform_version.to_f >= 6.2
+        node.default.cloudpassage.tag = 'win2012'
+    else
+        node.default.cloudpassage.tag = 'win2008r2'
+    end
+end
+
 # Next we determine the server tag string
-if node[:cloudpassage][:proxy_url] != "" then
+if node[:cloudpassage][:tag] != '' then
     tag_string_lin = "--tag=#{node[:cloudpassage][:tag]}"
     tag_string_win = "/tag=#{node[:cloudpassage][:tag]}"
 else
-    tag_string_lin = ""
-    tag_string_win = ""
+    tag_string_lin = ''
+    tag_string_win = ''
 end
+
+
 # Set up repositories for Linux
 case node[:platform_family]
     when "debian"

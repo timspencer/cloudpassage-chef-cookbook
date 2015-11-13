@@ -9,3 +9,7 @@ default[:cloudpassage][:grid] = "https://grid.cloudpassage.com/grid"
 default[:cloudpassage][:proxy_url] = ""
 default[:cloudpassage][:proxy_user] = "" 
 default[:cloudpassage][:proxy_pass] = ""
+default[:cloudpassage][:readonly] = 'false'
+default[:cloudpassage][:usedns] = 'false'
+default[:cloudpassage][:label] = ''
+

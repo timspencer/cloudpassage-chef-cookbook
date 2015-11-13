@@ -7,7 +7,7 @@
 
 # First we build the proxy string
 if node[:cloudpassage][:proxy_url] != "" then
-    ENV ['http_proxy'] = "#{node[:cloudpassage][:proxy_url]}"
+    ENV['http_proxy'] = "#{node[:cloudpassage][:proxy_url]}"
     if (node[:cloudpassage][:proxy_user] != "") && (node[:cloudpassage][:proxy_pass] != "") then
         proxy_string_lin = "--proxy=\"#{node[:cloudpassage][:proxy_url]}\" --proxy-user=\"#{node[:cloudpassage][:proxy_user]}\" --proxy-password=\"#{node[:cloudpassage][:proxy_pass]}\""
         proxy_string_win = "/proxy=\"#{node[:cloudpassage][:proxy_url]}\" /proxy-user=\"#{node[:cloudpassage][:proxy_user]}\" /proxy-password=\"#{node[:cloudpassage][:proxy_pass]}\""
@@ -63,28 +63,18 @@ end
 case node[:platform_family]
     when "debian", "rhel"
         p_serv_name = "cphalod"
-        startup_opts_lin = "--agent-key=#{node[:cloudpassage]['agent_key']} #{tag_string_lin} --grid=\"#{node[:cloudpassage][:grid]}\" #{proxy_string_lin}" 
+        startup_opts_lin = "--agent-key=#{node[:cloudpassage]['agent_key']} #{tag_string_lin} --grid=\"#{node[:cloudpassage][:grid]}\" #{proxy_string_lin} --read-only=#{node[:cloudpassage]['readonly']} --dns=#{node[:cloudpassage]['usedns']}" 
+
         package 'cphalo' do
             action :install
         end
-        # We'll start it up and shut it down using the init script.
-        # We will leave it off because later we'll start and enable it 
-        # using the platform's service manager.
 
+        # We'll configure it here.  The service will be started at the end.
         execute "cphalo-config" do
-          command "sudo /opt/cloudpassage/bin/configure --agent-key=#{node[:cloudpassage]['agent_key']} --tag=#{node[:cloudpassage]['tag']} --server-label=#{node[:cloudpassage]['label']} --read-only=#{node[:cloudpassage]['readonly']} --dns=#{node[:cloudpassage]['usedns']}"
+          command "sudo /opt/cloudpassage/bin/configure #{startup_opts_lin}"
           action :run
         end
 
-        execute "cphalo-start" do
-            command "sudo /etc/init.d/cphalod start"
-            action :run
-            not_if "sudo ps x | grep cphalo | grep -v grep"
-        end
-        execute "cphalo-stop" do
-            command "sudo /etc/init.d/cphalod stop"
-            only_if "sudo ps x | grep cphalo | grep -v grep"
-        end
     when "windows"
         p_serv_name = "CloudPassage Halo Agent"
         startup_opts_win = "/agent-key=#{node[:cloudpassage]['agent_key']} #{tag_string_win} /grid=\"#{node[:cloudpassage][:grid]}\" #{proxy_string_win}" 
@@ -95,7 +85,9 @@ case node[:platform_family]
             action :install
         end
 end
+
 # Now we start the agent using the platform's service manager!
 service "#{p_serv_name}" do
-    action [ "enable", "start"]
+    action ["enable", "start"]
 end
+

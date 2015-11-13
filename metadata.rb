@@ -1,4 +1,4 @@
-name             'cloudpassage'
+name             'cloudpassage-chef-cookbook'
 maintainer       'CloudPassage'
 maintainer_email 'toolbox@cloudpassage.com'
 license          'BSD'

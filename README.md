@@ -1,9 +1,8 @@
 # CloudPassage Chef Recipe
 
-Version: 0.3.1  
 Author: Eric Hoffmann - ehoffmann@cloudpassage.com
 
-Revisions: Elijah Wright - ewright@cloudpassage.com
+Revisions: Elijah Wright - ewright@cloudpassage.com, Tim Spencer - tspencer@cloudpassage.com
 
 
 This cookbook installs Halo on Windows, Debian-based (Ubuntu, Debian), and RHEL-based (CentOS, Oracle) operating systems.

@@ -18,3 +18,8 @@
 ## 0.3.1:
 
 * Corrected metadata.rb, populated README.md, corrected version in README.md
+
+## 0.3.2:
+
+* Changes to set tags in the nodes for UNNAMED CUSTOMER, added https for urls
+

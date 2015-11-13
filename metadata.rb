@@ -4,7 +4,7 @@ maintainer_email 'toolbox@cloudpassage.com'
 license          'BSD'
 description      'Installs/Configures CloudPassage Halo'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '0.3.1'
+version          '0.3.2'
 depends          'apt'
 depends          'yum'
 depends          'windows'

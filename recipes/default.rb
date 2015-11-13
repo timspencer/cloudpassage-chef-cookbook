@@ -23,11 +23,7 @@ end
 # Set some "tags" in the node
 case node.platform
 when 'oracle'
-    if node.platform_version =~ /6/
-        node.default.cloudpassage.tag = 'oel6'
-    else
-        node.default.cloudpassage.tag = 'oel5'
-    end
+    node.default.cloudpassage.tag = "oel#{node.platform_version.to_i}"
 when 'ubuntu'
     node.default.cloudpassage.tag = 'ubuntu14'
 when 'windows'

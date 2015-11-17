@@ -16,5 +16,5 @@ default[:cloudpassage][:usedns] = 'true'
 default[:cloudpassage][:label] = ''
 
 # This is to try to force apt to update the cloudpassage repo
-default[:cloudpassage][:refeshaptcache] = false
+default[:cloudpassage][:refreshaptcache] = false
 

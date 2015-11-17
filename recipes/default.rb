@@ -57,7 +57,7 @@ case node[:platform_family]
 	end
 	execute 'refresh_apt_repos' do
 		command 'apt-get update'
-		if node[:cloudpassage][:refeshaptcache] == false
+		if node[:cloudpassage][:refreshaptcache] == false
 			action :nothing
 		end
 	end

@@ -55,6 +55,10 @@ case node[:platform_family]
 			content "Acquire::http::Proxy \"http://#{node[:cloudpassage][:proxy_url]}/\";"
 		end
 	end
+	execute "fix_corrupt_apt_source" do
+		not_if "apt-get update >/dev/null 2>&1"
+		command "/bin/rm -f /etc/apt/sources.list.d/cloudpassage.list"
+	end
 	execute 'refresh_apt_repos' do
 		command 'apt-get update'
 		if node[:cloudpassage][:refreshaptcache] == false
@@ -84,7 +88,8 @@ case node[:platform_family]
         startup_opts_lin = "--agent-key=#{node[:cloudpassage]['agent_key']} #{tag_string_lin} --grid=\"#{node[:cloudpassage][:grid]}\" #{proxy_string_lin} --read-only=#{node[:cloudpassage]['readonly']} --dns=#{node[:cloudpassage]['usedns']}" 
 
         package 'cphalo' do
-            action :install
+            action :upgrade
+	    notifies :restart, "service[#{p_serv_name}]"
         end
 
         # We'll configure it here.  The service will be started at the end.

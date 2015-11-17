@@ -57,7 +57,9 @@ case node[:platform_family]
 	end
 	execute 'refresh_apt_repos' do
 		command 'apt-get update'
-		action :nothing
+		if node[:cloudpassage][:refeshaptcache] == false
+			action :nothing
+		end
 	end
         apt_repository 'cloudpassage' do
             uri node[:cloudpassage][:deb_repo_url]
@@ -103,7 +105,9 @@ case node[:platform_family]
 end
 
 # Now we start the agent using the platform's service manager!
+# We ignore failure because some init/systemd things return nonzero while starting an already started service (ugly)
 service "#{p_serv_name}" do
     action ["enable", "start"]
+    ignore_failure true
 end
 

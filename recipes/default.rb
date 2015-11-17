@@ -87,8 +87,8 @@ case node[:platform_family]
 
         # We'll configure it here.  The service will be started at the end.
         execute "cphalo-config" do
-          command "sudo /opt/cloudpassage/bin/configure #{startup_opts_lin}"
-          action :run
+            command "sudo /opt/cloudpassage/bin/configure #{startup_opts_lin}"
+            action :run
         end
 
     when "windows"

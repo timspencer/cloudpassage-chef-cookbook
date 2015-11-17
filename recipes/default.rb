@@ -6,9 +6,9 @@
 # Before we get this party started, set the environment variable for proxy...
 
 # First we build the proxy string
-if node[:cloudpassage][:proxy_url] != "" then
-    ENV['http_proxy'] = "#{node[:cloudpassage][:proxy_url]}"
-    if (node[:cloudpassage][:proxy_user] != "") && (node[:cloudpassage][:proxy_pass] != "") then
+if node[:cloudpassage][:proxy_url] != ""
+    ENV['http_proxy'] = "http://#{node[:cloudpassage][:proxy_url]}/"
+    if (node[:cloudpassage][:proxy_user] != "") && (node[:cloudpassage][:proxy_pass] != "")
         proxy_string_lin = "--proxy=\"#{node[:cloudpassage][:proxy_url]}\" --proxy-user=\"#{node[:cloudpassage][:proxy_user]}\" --proxy-password=\"#{node[:cloudpassage][:proxy_pass]}\""
         proxy_string_win = "/proxy=\"#{node[:cloudpassage][:proxy_url]}\" /proxy-user=\"#{node[:cloudpassage][:proxy_user]}\" /proxy-password=\"#{node[:cloudpassage][:proxy_pass]}\""
     else
@@ -35,7 +35,7 @@ when 'windows'
 end
 
 # Next we determine the server tag string
-if node[:cloudpassage][:tag] != '' then
+if node[:cloudpassage][:tag] != ''
     tag_string_lin = "--tag=#{node[:cloudpassage][:tag]}"
     tag_string_win = "/tag=#{node[:cloudpassage][:tag]}"
 else
@@ -47,9 +47,22 @@ end
 # Set up repositories for Linux
 case node[:platform_family]
     when "debian"
+	if node[:cloudpassage][:proxy_url] != ""
+		directory '/etc/apt/apt.conf.d' do
+			recursive true
+		end
+		file '/etc/apt/apt.conf.d/01proxy' do
+			content "Acquire::http::Proxy \"http://#{node[:cloudpassage][:proxy_url]}/\";"
+		end
+	end
+	execute 'refresh_apt_repos' do
+		command 'apt-get update'
+		action :nothing
+	end
         apt_repository 'cloudpassage' do
             uri node[:cloudpassage][:deb_repo_url]
             key node[:cloudpassage][:deb_key_location] 
+	    notifies :run, 'execute[refresh_apt_repos]'
         end
     when "rhel"
         yum_repository 'cloudpassage' do
@@ -57,6 +70,9 @@ case node[:platform_family]
             baseurl  "#{node[:cloudpassage][:rpm_repo_url]}"
             gpgkey  "#{node[:cloudpassage][:rpm_key_location]}"
             action :create
+            if node[:cloudpassage][:proxy_url] != ""
+                proxy node[:cloudpassage][:proxy_url]
+            end
         end
 end
 # Install and register the Halo agent

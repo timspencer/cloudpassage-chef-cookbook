@@ -71,7 +71,7 @@ case node[:platform_family]
             gpgkey  "#{node[:cloudpassage][:rpm_key_location]}"
             action :create
             if node[:cloudpassage][:proxy_url] != ""
-                proxy node[:cloudpassage][:proxy_url]
+                proxy "http://#{node[:cloudpassage][:proxy_url]}/"
             end
         end
 end

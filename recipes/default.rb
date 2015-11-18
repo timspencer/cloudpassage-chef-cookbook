@@ -108,7 +108,7 @@ case node[:platform_family]
 
     when "windows"
         p_serv_name = "cphalo"
-        startup_opts_win = "/agent-key=#{node[:cloudpassage]['agent_key']} #{tag_string_win} /grid=\"#{node[:cloudpassage][:grid]}\" #{proxy_string_win}" 
+        startup_opts_win = "/daemon-key=#{node[:cloudpassage]['agent_key']} #{tag_string_win} /grid=\"#{node[:cloudpassage][:grid]}\" #{proxy_string_win}" 
         windows_package 'CloudPassage Halo' do
             source node[:cloudpassage][:win_installer_location]
             options "/S #{startup_opts_win} /NOSTART"

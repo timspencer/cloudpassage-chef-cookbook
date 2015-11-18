@@ -73,7 +73,8 @@ case node[:platform_family]
                 key_proxy "http://#{node[:cloudpassage][:proxy_url]}/"
             end
             key node[:cloudpassage][:deb_key_location] 
-	    notifies :run, 'execute[refresh_apt_repos]'
+	    # we really shouldn't need this next line.  May take out after testing some more.
+	    notifies :run, 'execute[refresh_apt_repos]', :immediately
         end
     when "rhel"
         yum_repository 'cloudpassage' do

@@ -66,7 +66,12 @@ case node[:platform_family]
 		end
 	end
         apt_repository 'cloudpassage' do
-            uri node[:cloudpassage][:deb_repo_url]
+            uri node[:cloudpassage][:deb_repo_uri]
+            distribution node[:cloudpassage][:deb_repo_distribution]
+            components node[:cloudpassage][:deb_repo_components]
+            if node[:cloudpassage][:proxy_url] != ""
+                key_proxy "http://#{node[:cloudpassage][:proxy_url]}/"
+            end
             key node[:cloudpassage][:deb_key_location] 
 	    notifies :run, 'execute[refresh_apt_repos]'
         end
@@ -81,6 +86,8 @@ case node[:platform_family]
             end
         end
 end
+
+
 # Install and register the Halo agent
 case node[:platform_family]
     when "debian", "rhel"
@@ -99,7 +106,7 @@ case node[:platform_family]
         end
 
     when "windows"
-        p_serv_name = "CloudPassage Halo Agent"
+        p_serv_name = "cphalo"
         startup_opts_win = "/agent-key=#{node[:cloudpassage]['agent_key']} #{tag_string_win} /grid=\"#{node[:cloudpassage][:grid]}\" #{proxy_string_win}" 
         windows_package 'CloudPassage Halo' do
             source node[:cloudpassage][:win_installer_location]

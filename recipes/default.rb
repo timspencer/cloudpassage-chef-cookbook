@@ -121,6 +121,6 @@ end
 # We ignore failure because some init/systemd things return nonzero while starting an already started service (ugly)
 service "#{p_serv_name}" do
     action ["enable", "start"]
-    ignore_failure true
+    supports :status => true
 end
 

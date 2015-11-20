@@ -20,3 +20,15 @@ default[:cloudpassage][:label] = ''
 # This is to try to force apt to update the cloudpassage repo
 default[:cloudpassage][:refreshaptcache] = false
 
+# Trigger a restart of all the daemons by changing this string here and pushing this cookbook out
+# Any unique string will do.
+default[:cloudpassage][:restart] = "2015-11-18-1406"
+# Don't change this one, though.  Needed so initial run won't restart everything
+default[:cloudpassage][:restarted] = "2015-11-18-1406"
+
+# Trigger a reinstall of all the daemons by changing this string here and pushing this cookbook out
+# Any unique string will do.
+default[:cloudpassage][:reinstall] = "2015-11-18-1406"
+# Don't change this one, though.  Needed so initial run won't restart everything
+default[:cloudpassage][:reinstalled] = "2015-11-18-1406"
+

@@ -3,8 +3,9 @@
 # Recipe:: default
 #
 # Copyright 2015, CloudPassage
-# Before we get this party started, set the environment variable for proxy...
+#
 
+# Before we get this party started, set the environment variable for proxy...
 # First we build the proxy string
 if node[:cloudpassage][:proxy_url] != ""
     ENV['http_proxy'] = "http://#{node[:cloudpassage][:proxy_url]}/"
@@ -15,9 +16,6 @@ if node[:cloudpassage][:proxy_url] != ""
         proxy_string_lin = "--proxy=\"#{node[:cloudpassage][:proxy_url]}\""
         proxy_string_win = "/proxy=\"#{node[:cloudpassage][:proxy_url]}\""
     end
-else
-    proxy_string_lin = ""
-    proxy_string_win = ""
 end
 
 # Set some "tags" in the node
@@ -38,9 +36,6 @@ end
 if node[:cloudpassage][:tag] != ''
     tag_string_lin = "--tag=#{node[:cloudpassage][:tag]}"
     tag_string_win = "/tag=#{node[:cloudpassage][:tag]}"
-else
-    tag_string_lin = ''
-    tag_string_win = ''
 end
 
 
@@ -88,6 +83,20 @@ case node[:platform_family]
         end
 end
 
+# force a reinstall if we've changed the reinstall string
+ruby_block "force_reinstall" do
+    only_if { node[:cloudpassage][:reinstall] != node[:cloudpassage][:reinstalled] }
+    block do
+        node.set[:cloudpassage][:reinstalled] = node[:cloudpassage][:reinstall]
+    end
+    case node[:platform_family]
+    when 'windows'
+	    notifies :remove, "windows_package[CloudPassage Halo]", :immediately
+    else
+	    notifies :remove, "package[cphalo]", :immediately
+    end
+end
+
 
 # Install and register the Halo agent
 case node[:platform_family]
@@ -116,6 +125,16 @@ case node[:platform_family]
             action :install
         end
 end
+
+# force a restart if we've changed the restart string
+ruby_block "force_restart" do
+    only_if { node[:cloudpassage][:restart] != node[:cloudpassage][:restarted] }
+    block do
+        node.set[:cloudpassage][:restarted] = node[:cloudpassage][:restart]
+    end
+    notifies :restart, "service[#{p_serv_name}]"
+end
+
 
 # Now we start the agent using the platform's service manager!
 # We ignore failure because some init/systemd things return nonzero while starting an already started service (ugly)

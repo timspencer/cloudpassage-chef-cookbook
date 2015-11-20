@@ -83,6 +83,12 @@ case node[:platform_family]
         end
 end
 
+# need this for windows
+execute 'sleep10' do
+	command 'sleep 10'
+	action :nothing
+end
+
 # force a reinstall if we've changed the reinstall string
 ruby_block "force_reinstall" do
     only_if { node[:cloudpassage][:reinstall] != node[:cloudpassage][:reinstalled] }
@@ -92,6 +98,7 @@ ruby_block "force_reinstall" do
     case node[:platform_family]
     when 'windows'
 	    notifies :remove, "windows_package[CloudPassage Halo]", :immediately
+	    notifies :run, "execute[sleep10]", :immediately
     else
 	    notifies :remove, "package[cphalo]", :immediately
     end

@@ -10,7 +10,7 @@ default[:cloudpassage][:deb_repo_distribution] = "debian"
 default[:cloudpassage][:deb_repo_components] = ["main"]
 default[:cloudpassage][:deb_key_location] = "https://packages.cloudpassage.com/cloudpassage.packages.key"
 # rhel 5 based distros can't do https through a proxy
-if (node.platform_version.to_i < 6) && (default[:cloudpassage][:proxy_url] != "")
+if (node[:platform_family] == 'rhel') && (node.platform_version.to_i < 6) && (default[:cloudpassage][:proxy_url] != "")
 	default[:cloudpassage][:rpm_repo_url] = "http://packages.cloudpassage.com/redhat/$basearch"
 	default[:cloudpassage][:rpm_key_location] = "http://packages.cloudpassage.com/cloudpassage.packages.key"
 else

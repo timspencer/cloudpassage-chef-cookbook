@@ -7,6 +7,8 @@
 
 # Before we get this party started, set the environment variable for proxy...
 # First we build the proxy string
+proxy_string_win = ''
+proxy_string_lin = ''
 if node[:cloudpassage][:proxy_url] != ""
     ENV['http_proxy'] = "http://#{node[:cloudpassage][:proxy_url]}/"
     if (node[:cloudpassage][:proxy_user] != "") && (node[:cloudpassage][:proxy_pass] != "")
@@ -50,10 +52,6 @@ case node[:platform_family]
 			content "Acquire::http::Proxy \"http://#{node[:cloudpassage][:proxy_url]}/\";"
 		end
 	end
-	execute "fix_corrupt_apt_source" do
-		not_if "apt-get update >/dev/null 2>&1"
-		command "/bin/rm -f /etc/apt/sources.list.d/cloudpassage.list"
-	end
 	execute 'refresh_apt_repos' do
 		command 'apt-get update'
 		if node[:cloudpassage][:refreshaptcache] == false
@@ -83,28 +81,6 @@ case node[:platform_family]
         end
 end
 
-# need this for windows
-execute 'sleep10' do
-	command 'sleep 10'
-	action :nothing
-end
-
-# force a reinstall if we've changed the reinstall string
-ruby_block "force_reinstall" do
-    only_if { node[:cloudpassage][:reinstall] != node[:cloudpassage][:reinstalled] }
-    block do
-        node.set[:cloudpassage][:reinstalled] = node[:cloudpassage][:reinstall]
-    end
-    case node[:platform_family]
-    when 'windows'
-	    notifies :remove, "windows_package[CloudPassage Halo]", :immediately
-	    notifies :run, "execute[sleep10]", :immediately
-    else
-	    notifies :remove, "package[cphalo]", :immediately
-    end
-end
-
-
 # Install and register the Halo agent
 case node[:platform_family]
     when "debian", "rhel"
@@ -120,17 +96,52 @@ case node[:platform_family]
         execute "cphalo-config" do
             command "sudo /opt/cloudpassage/bin/configure #{startup_opts_lin}"
             action :run
+	    # don't reconfigure if it's already been run
+	    not_if "test -f /opt/cloudpassage/data/store.db.vector"
         end
 
     when "windows"
-        p_serv_name = "cphalo"
-        startup_opts_win = "/daemon-key=#{node[:cloudpassage]['agent_key']} #{tag_string_win} /grid=\"#{node[:cloudpassage][:grid]}\" #{proxy_string_win}" 
-        windows_package 'CloudPassage Halo' do
-            source node[:cloudpassage][:win_installer_location]
-            options "/S #{startup_opts_win} /NOSTART"
-            installer_type :custom
-            action :install
-        end
+	p_serv_name = "cphalo"
+
+	# need this for windows, because it doesn't shut down right away
+	execute 'sleep10' do
+		command 'sleep 10'
+		action :nothing
+	end
+
+	# force a reinstall on windows if we've changed the reinstall string
+	ruby_block "force_reinstall" do
+	    only_if { node[:cloudpassage][:reinstall] != node[:cloudpassage][:reinstalled] }
+	    block do
+		node.set[:cloudpassage][:reinstalled] = node[:cloudpassage][:reinstall]
+	    end
+	    notifies :remove, "windows_package[CloudPassage Halo]", :immediately
+	    notifies :run, "execute[sleep10]", :immediately
+	end
+
+	stdout,stderr,status = Open3.capture3('c:\windows\system32\sc.exe','query','cphalo')
+	if status.exitstatus == 0
+		# figure out the version of the installer
+		win_installer_version = node[:cloudpassage][:win_installer_location].gsub(/.*cphalo-(\d*\.\d*\.\d*)-win64.exe/, '\1')
+		
+		# reinstall/upgrade here
+		windows_package 'CloudPassage Halo' do
+		    source node[:cloudpassage][:win_installer_location]
+		    options "/S"
+		    version win_installer_version
+		    installer_type :custom
+		    notifies :stop, "service[#{p_serv_name}]", :immediately
+		    notifies :start, "service[#{p_serv_name}]", :immediately
+		end
+	else
+		# fresh install here
+		windows_package 'CloudPassage Halo' do
+		    source node[:cloudpassage][:win_installer_location]
+		    options "/S /daemon-key=#{node[:cloudpassage]['agent_key']} #{tag_string_win} /grid=\"#{node[:cloudpassage][:grid]}\" #{proxy_string_win} /NOSTART"
+		    installer_type :custom
+		    action :install
+		end
+	end
 end
 
 # force a restart if we've changed the restart string

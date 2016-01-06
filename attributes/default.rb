@@ -17,6 +17,8 @@ else
 	default[:cloudpassage][:rpm_repo_url] = "https://packages.cloudpassage.com/redhat/$basearch"
 	default[:cloudpassage][:rpm_key_location] = "https://packages.cloudpassage.com/cloudpassage.packages.key"
 end
+# Make sure that this url ends with the filename being in the format of cphalo-<versionnumber>-win64.exe!
+# Otherwise, upgrades will break.
 default[:cloudpassage][:win_installer_location] = "https://packages.cloudpassage.com/windows/cphalo-3.2.10-win64.exe"
 default[:cloudpassage][:grid] = "https://grid.cloudpassage.com/grid" 
 default[:cloudpassage][:readonly] = 'false'

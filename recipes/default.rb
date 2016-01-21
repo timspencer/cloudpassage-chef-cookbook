@@ -16,7 +16,6 @@ if node[:cloudpassage][:delete]
 			else
 				action :remove
 			end
-			ignore_failure true
 		end
 	when 'windows'
 		# stop the service to be sure
@@ -25,7 +24,6 @@ if node[:cloudpassage][:delete]
 		end
 		windows_package 'CloudPassage Halo' do
 			action :remove
-			ignore_failure true
 		end
 	end
 

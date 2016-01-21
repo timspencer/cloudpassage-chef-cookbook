@@ -5,6 +5,34 @@
 # Copyright 2015, CloudPassage
 #
 
+# Nuke everything if we set the delete attribute
+if node[:cloudpassage][:delete]
+	# nuke the package (linux package shuts down halo already)
+	case node[:os]
+	when 'linux'
+		package 'cphalo' do
+			if node[:platform_family] == 'debian'
+				action :purge
+			else
+				action :remove
+			end
+			ignore_failure true
+		end
+	when 'windows'
+		# stop the service to be sure
+		service 'cphalo' do
+		    action ["disable", "stop"]
+		end
+		windows_package 'CloudPassage Halo' do
+			action :remove
+			ignore_failure true
+		end
+	end
+
+	# don't process the rest of the recipe
+	return
+end
+
 # Before we get this party started, set the environment variable for proxy...
 # First we build the proxy string
 proxy_string_win = ''

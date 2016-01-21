@@ -19,7 +19,7 @@ else
 end
 # Make sure that this url ends with the filename being in the format of cphalo-<versionnumber>-win64.exe!
 # Otherwise, upgrades will break.
-default[:cloudpassage][:win_installer_location] = "https://packages.cloudpassage.com/windows/cphalo-3.2.10-win64.exe"
+default[:cloudpassage][:win_installer_location] = "https://packages.cloudpassage.com/windows/cphalo-3.6.6-win64.exe"
 default[:cloudpassage][:grid] = "https://grid.cloudpassage.com/grid" 
 default[:cloudpassage][:readonly] = 'false'
 default[:cloudpassage][:usedns] = 'true'
@@ -39,4 +39,8 @@ default[:cloudpassage][:restarted] = "2015-11-18-1406"
 default[:cloudpassage][:reinstall] = "2015-11-18-1406"
 # Don't change this one, though.  Needed so initial run won't restart everything
 default[:cloudpassage][:reinstalled] = "2015-11-18-1406"
+
+# Set this to true to get it to delete halo and all of it's files
+# DO NOT DO THIS LIGHTLY
+default[:cloudpassage][:delete] = false
 

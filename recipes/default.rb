@@ -115,7 +115,7 @@ case node[:platform_family]
 
         package 'cphalo' do
             action :upgrade
-	    notifies :restart, "service[#{p_serv_name}]"
+	    notifies :restart, "service[#{p_serv_name}]", :delayed
         end
 
         # We'll configure it here.  The service will be started at the end.

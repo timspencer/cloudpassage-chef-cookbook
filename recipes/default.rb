@@ -70,12 +70,16 @@ end
 # Set up repositories for Linux
 case node[:platform_family]
     when "debian"
-	if node[:cloudpassage][:proxy_url] != ""
+        if node[:cloudpassage][:proxy_url] != "" || (node[:cloudpassage][:key_proxy_url].is_a? String) && (node[:cloudpassage][:key_proxy_url] != '')
 		directory '/etc/apt/apt.conf.d' do
 			recursive true
 		end
 		file '/etc/apt/apt.conf.d/01proxy' do
-			content "Acquire::http::Proxy \"http://#{node[:cloudpassage][:proxy_url]}/\";"
+			if (node[:cloudpassage][:key_proxy_url].is_a? String) && (node[:cloudpassage][:key_proxy_url] != '')
+				content "Acquire::http::Proxy \"http://#{node[:cloudpassage][:key_proxy_url]}/\";"
+			else
+				content "Acquire::http::Proxy \"http://#{node[:cloudpassage][:proxy_url]}/\";"
+			end
 		end
 	end
 	execute 'refresh_apt_repos' do
@@ -88,8 +92,12 @@ case node[:platform_family]
             uri node[:cloudpassage][:deb_repo_uri]
             distribution node[:cloudpassage][:deb_repo_distribution]
             components node[:cloudpassage][:deb_repo_components]
-            if node[:cloudpassage][:proxy_url] != ""
-                key_proxy "http://#{node[:cloudpassage][:proxy_url]}/"
+            if node[:cloudpassage][:proxy_url] != "" || (node[:cloudpassage][:key_proxy_url].is_a? String) && (node[:cloudpassage][:key_proxy_url] != '')
+		    if (node[:cloudpassage][:key_proxy_url].is_a? String) && (node[:cloudpassage][:key_proxy_url] != '')
+			key_proxy "http://#{node[:cloudpassage][:key_proxy_url]}/"
+		    else
+			key_proxy "http://#{node[:cloudpassage][:proxy_url]}/"
+		    end
             end
             key node[:cloudpassage][:deb_key_location] 
 	    # we really shouldn't need this next line.  May take out after testing some more.
@@ -101,8 +109,12 @@ case node[:platform_family]
             baseurl  "#{node[:cloudpassage][:rpm_repo_url]}"
             gpgkey  "#{node[:cloudpassage][:rpm_key_location]}"
             action :create
-            if node[:cloudpassage][:proxy_url] != ""
-                proxy "http://#{node[:cloudpassage][:proxy_url]}/"
+            if node[:cloudpassage][:proxy_url] != "" || (node[:cloudpassage][:key_proxy_url].is_a? String) && (node[:cloudpassage][:key_proxy_url] != '')
+		    if (node[:cloudpassage][:key_proxy_url].is_a? String) && (node[:cloudpassage][:key_proxy_url] != '')
+			proxy "http://#{node[:cloudpassage][:key_proxy_url]}/"
+		    else
+			proxy "http://#{node[:cloudpassage][:proxy_url]}/"
+		    end
             end
         end
 end

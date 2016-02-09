@@ -13,6 +13,9 @@ default[:cloudpassage][:deb_key_location] = "https://packages.cloudpassage.com/c
 if (node[:platform_family] == 'rhel') && (node.platform_version.to_i < 6) && (default[:cloudpassage][:proxy_url] != "")
 	default[:cloudpassage][:rpm_repo_url] = "http://packages.cloudpassage.com/redhat/$basearch"
 	default[:cloudpassage][:rpm_key_location] = "http://packages.cloudpassage.com/cloudpassage.packages.key"
+	# This key proxy url needs to be in the format of "hostname:port".  No http/https, etc. For example:
+	# default[:cloudpassage][:key_proxy_url] = "proxyhost.cloudpassage.com:3128"
+	default[:cloudpassage][:key_proxy_url] = ""
 else
 	default[:cloudpassage][:rpm_repo_url] = "https://packages.cloudpassage.com/redhat/$basearch"
 	default[:cloudpassage][:rpm_key_location] = "https://packages.cloudpassage.com/cloudpassage.packages.key"

@@ -132,7 +132,7 @@ case node[:platform_family]
 
         # We'll configure it here.  The service will be started at the end.
         execute "cphalo-config" do
-            command "sudo /opt/cloudpassage/bin/configure #{startup_opts_lin}"
+            command "/opt/cloudpassage/bin/configure #{startup_opts_lin}"
             action :run
 	    # don't reconfigure if it's already been run
 	    not_if "test -f /opt/cloudpassage/data/store.db.vector"
